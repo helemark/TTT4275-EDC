@@ -6,6 +6,9 @@
    4. petal width in cm
 """
 
+
+#OBS dette er ikke helt ferdig ennå, en midlertidig versjon! ;)
+
 C = 3
 classes = ['Setosa', 'Versicolour', 'Virginica']
 features = ['Sepal lenght', 'Sepal width', 'Petal length', 'Petal width']
