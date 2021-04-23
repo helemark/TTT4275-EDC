@@ -1,9 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import csv
-import random
-import pandas as pd
-
 
 """
    1. sepal length in cm
@@ -20,7 +14,7 @@ training_data = []
 testing_data = []
 tot_vec = []
 Tn = [[1, 0, 0]]*30 + [[0, 1, 0] ]*30 + [[0,0,1]]*30
-W = np.zeros((3,1))
+W = np.zeros((3,4))
 trenings_terskel = 0.4
 
 
@@ -216,7 +210,7 @@ if __name__ == "__main__":
     
     alpha = 0.001
 
-    '''
+
     train(training_data, alpha)
 
 
@@ -225,6 +219,17 @@ if __name__ == "__main__":
     train_classified = test(training_data, len_train_class)
 
 
+    pappas = [1.8, 1.6, 1.3, 0.7]
+
+    xk = np.matrix(pappas)
+    zk = np.dot(W, xk.T).T
+    gk = sigmoid(zk[0])
+    print('pappas gk',gk)
+    classified = np.argmax(gk)+1
+    print('pappas',classified)
+
+
+    
     err_t_test = error_rate(test_classified)
     print(err_t_test)
 
@@ -233,7 +238,7 @@ if __name__ == "__main__":
 
     plot_confusion(test_classified)
     plot_confusion(train_classified)
-    '''
+
 
     '''
     training_data_1 = remove_feature(training_data, 1)
@@ -286,4 +291,3 @@ if __name__ == "__main__":
     f.savefig("Petalvspetal.pdf", bbox_inches='tight')
     plt.show()
     
-
