@@ -6,6 +6,7 @@ import pandas as pd
 
 
 """
+This script is for classifying samples of three classes of Irises, by training and testing a linear classifier.
    1. sepal length in cm
    2. sepal width in cm
    3. petal length in cm
@@ -14,29 +15,31 @@ import pandas as pd
 
 C = 3
 classes = ['Setosa', 'Versicolour', 'Virginica']
-features = ['Sepal lenght', 'Sepal width', 'Petal length', 'Petal width']
+features = ['Sepal length', 'Sepal width', 'Petal length', 'Petal width']
 
 training_data = []
 testing_data = []
 tot_vec = []
-Tn = [[1, 0, 0]]*30 + [[0, 1, 0] ]*30 + [[0,0,1]]*30
-W = np.zeros((3,5))
-trenings_terskel = 0.4
+Tn = [[1, 0, 0]]*30 + [[0, 1, 0]]*30 + [[0, 0, 1]]*30
+W = np.zeros((3, 5))
+training_threshold = 0.4
 
 
 len_train_class = 30
 len_test_class = 20
 
 
-
 def get_data():
+    """
+    Updates the training and testing data sets with data from text file.
+    """
     training_data0 = []
     testing_data0 = []
     tot_vec0 = []
     for i in range(C):
-        filnavn = ".\Iris_TTT4275\class_"+str(i+1)+".txt"
-        with open(filnavn,'r') as myfile:
-            data = csv.reader(myfile, delimiter= ',')
+        filename = ".\Iris_TTT4275\class_"+str(i+1)+".txt"
+        with open(filename,'r') as my_file:
+            data = csv.reader(my_file, delimiter= ',')
             i = 0
             for line in data:
                 tot_vec0.append(line)
@@ -59,8 +62,7 @@ def get_data():
             line_new.append(float(value))
         line_new.append(1)
         tot_vec.append(line_new)
-        
-        
+
     for line in testing_data0:
         line_new = []
         for value in line:
@@ -69,35 +71,47 @@ def get_data():
         testing_data.append(line_new)     
     return
 
-
-
    
 def plot_petal_data(vec):
-    lenght = []
+    """
+    Plots of the length and width of the petal against each other for illustrative purposes.
+    :param vec: data set.
+    """
+    length = []
     width = []
     l = int(len(vec)/3)
     for line in vec:
-        lenght.append(float(line[2]))
+        length.append(float(line[2]))
         width.append(float(line[3]))
-    plt.plot(lenght[0:l], width[0:l], 'r' 'x')
-    plt.plot(lenght[l:2*l], width[l:2*l], 'g' 'x')
-    plt.plot(lenght[2*l:3*l], width[2*l:3*l], 'b' 'x')
+    plt.plot(length[0:l], width[0:l], 'r' 'x')
+    plt.plot(length[l:2*l], width[l:2*l], 'g' 'x')
+    plt.plot(length[2*l:3*l], width[2*l:3*l], 'b' 'x')
     return
 
+
 def plot_sepal_data(vec):
-    lenght = []
+    """
+    Plots of the length and width of the sepal against each other for illustrative purposes.
+    :param vec: data set.
+    """
+    length = []
     width = []
     l = int(len(vec)/3)
     for line in vec:
-        lenght.append(float(line[0]))
+        length.append(float(line[0]))
         width.append(float(line[1]))
-    plt.plot(lenght[0:l], width[0:l], 'r' 'x')
-    plt.plot(lenght[l:2*l], width[l:2*l], 'g' 'x')
-    plt.plot(lenght[2*l:3*l], width[2*l:3*l], 'b' 'x')
+    plt.plot(length[0:l], width[0:l], 'r' 'x')
+    plt.plot(length[l:2*l], width[l:2*l], 'g' 'x')
+    plt.plot(length[2*l:3*l], width[2*l:3*l], 'b' 'x')
     return
         
 
-def averige(data):
+def average(data):
+    """
+    Finds the average point of each class.
+    :param data: training data set.
+    :return: the average points of the classes
+    """
     class_1 = [0, 0, 0, 0]
     class_2 = [0, 0, 0, 0]
     class_3 = [0, 0, 0, 0]
@@ -121,16 +135,25 @@ def averige(data):
     return class_1, class_2, class_3
 
 
-def sigmoid(vec):  
+def sigmoid(vec):
+    """
+    Calculates the sigmoid function.
+    :param vec: training or testing data set.
+    :return: the sigmoid function
+    """
     return 1/(1+np.exp(-vec))
 
 
-
 def train(vec, alpha):
+    """
+    Training the W matrix.
+    :param vec: the training data set.
+    :param alpha: the step size
+    """
     global W
-    global trenings_terskel
+    global training_threshold
     i = 0
-    while(True):
+    while True:
         W_last = W
         n_mse = 0
         for j in range(len(vec)):
@@ -138,36 +161,47 @@ def train(vec, alpha):
             tk = np.matrix(Tn[j])
             zk = np.dot(W, xk.T).T
             gk = sigmoid(zk)
-            mellomleddet = np.multiply((gk-tk),gk)
-            d_mse = np.multiply(mellomleddet,(1-gk))
+            mid_term = np.multiply((gk-tk),gk)
+            d_mse = np.multiply(mid_term,(1-gk))
             n_mse += np.dot(d_mse.T, xk)
         
         W = W_last - alpha*n_mse
-        #error = np.sum(W-W_last)
-        if(np.all(abs(n_mse) <= trenings_terskel)):
-            print('Antall iterasjoner:', i+1)
-            print('nabla_nmse:',n_mse)
+
+        if np.all(abs(n_mse) <= training_threshold):
+            print('Number of iterations:', i+1)
+            print('nabla-nmse:',n_mse)
             print('W:', W)
             break
         i += 1
-        
+
+
 def test(vec, number_per_class):
+    """
+    Testing a data set.
+    :param vec: the training or test data set.
+    :param number_per_class: number of samples in each class
+    :return: classified data
+    """
     class_vec = [[], [], []]    
     for i in range(len(vec)):
         xk = np.matrix(vec[i])
         zk = np.dot(W, xk.T).T
         gk = sigmoid(zk[0])
         classified = np.argmax(gk)+1
-        if(i<number_per_class):
+        if i < number_per_class:
             class_vec[0].append(classified)
-        elif(number_per_class<=i<number_per_class*2):
+        elif number_per_class <= i < number_per_class*2:
             class_vec[1].append(classified)
-        elif(number_per_class*2<=i):
+        elif number_per_class*2 <= i:
             class_vec[2].append(classified)
     return class_vec
 
 
 def error_rate(vec):
+    """
+    :param vec: the tested data set
+    :return: error rate of the classified data set
+    """
     sum_error = 0
     len_class = len(vec[0])
     for i in range(len(vec)):
@@ -177,17 +211,27 @@ def error_rate(vec):
 
 
 def plot_confusion(vec):
+    """
+    Plotting the confusion matrix.
+    :param vec: the classified data set.
+    """
     global classes
     data = {
         classes[0]: [vec[0].count(1), vec[1].count(1), vec[2].count(1)],
         classes[1]: [vec[0].count(2), vec[1].count(2), vec[2].count(2)],
         classes[2]: [vec[0].count(3), vec[1].count(3), vec[2].count(3)]     
         }
-    df = pd.DataFrame(data, index = classes)
+    df = pd.DataFrame(data, index=classes)
     print(df)
 
 
 def plot_feature(vec, index, len_class):
+    """
+    Plotting the histograms of the different features for all of the classes.
+    :param vec: data set
+    :param index: index of the feature to be plotted
+    :param len_class: number of samples in each class
+    """
     global C
     class1 = []
     class2 = []
@@ -201,15 +245,20 @@ def plot_feature(vec, index, len_class):
     plt.hist(class3, color='b', rwidth=1)
     plt.title(features[index])
     plt.xlabel('cm')
-    plt.ylabel('Nuber')
+    plt.ylabel('Number')
     plt.show()
+
     
 def remove_feature(vec, index):
+    """
+    This is used on exercise 2 a and b, where we remove a feature one by one.
+    :param vec: the data set
+    :param index: index of the feature to be removed
+    """
     new_vec = []
     for xk in vec:
         xk.pop(index)
         new_vec.append(xk)
-    print
     return new_vec
     
 
@@ -220,7 +269,6 @@ if __name__ == "__main__":
     train(training_data, alpha)
 
     print('\n\n', 'Testing!')
-
 
     print('confusion matrix for the test data')
     test_classified = test(testing_data, len_test_class)
@@ -235,10 +283,8 @@ if __name__ == "__main__":
     err_t_train = error_rate(train_classified)
     print(err_t_train)
 
-
-
-    #Dette brukes på oppgave 2 a og b, hvor vi fjerner en etter en feature
-    #OBS, husk å endre dimensjonene på W
+    # This is used on exercise 2 a and b, where we remove a feature one by one.
+    # The dimensions of W need to be changed as well.
     '''
     training_data_1 = remove_feature(training_data, 1)
     testing_data_1 = remove_feature(testing_data, 1)
@@ -262,20 +308,17 @@ if __name__ == "__main__":
     print(err_t_train)
     '''
 
+    # Here we plot the histograms of the different features for all of the classes.
+    # tot_vec = remove_feature(tot_vec, 1)
+    # plot_feature(tot_vec, 0, 50)
+    # plot_feature(tot_vec, 1, 50)
+    # plot_feature(tot_vec, 2, 50)
+    # plot_feature(tot_vec, 3, 50)
 
-
-    #Her plotter vi histogrammer av de ulike featurene for alle klassene.
-    #tot_vec = remove_feature(tot_vec, 1)
-    #plot_feature(tot_vec, 0, 50)
-    #plot_feature(tot_vec, 1, 50)
-    #plot_feature(tot_vec, 2, 50)
-    #plot_feature(tot_vec, 3, 50)
-
-    
     '''
-    #Plotting av ulike features mot hverandre, ikke en del av oppgaen, men for vår egen del.
+    # Plotting of the different features against each other for illustrative purposes.
     f = plt.figure()
-    mu_1, mu_2, mu_3 = averige(training_data)
+    mu_1, mu_2, mu_3 = average(training_data)
     plot_sepal_data(training_data)
     plot_sepal_data(testing_data)
     class1 = plt.plot(mu_1[0], mu_1[1], 'ro', label = classes[0])
