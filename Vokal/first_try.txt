@@ -1,5 +1,7 @@
 
-oppgave 1 a
+
+oppgave 1 a)
+Sample mean array
 [[ 662.5323741  2257.43884892 2839.11510791]
  [ 891.25179856 1474.30935252 2770.64028777]
  [ 766.89928058 1145.5323741  2746.87769784]
@@ -15,9 +17,8 @@ oppgave 1 a
 
 
 
-oppgave 1 b
-
-
+oppgave 1 b)
+Confusion matix for the classifier with full covariance matix
     ae  ah  aw  eh  ei  er  ih  iy  oa  oo  uh  uw
 ae  34   0   0  13  10  10   0   0   0   0   0   0
 ah   0  49   7   0   0   0   0   0   0   0   4   0
@@ -35,8 +36,7 @@ err_t = 0.3176328502415459
 
 
 oppgave 1 c
-
-
+Confusion matix for the classifier with diagonal covariance matrix
     ae  ah  aw  eh  ei  er  ih  iy  oa  oo  uh  uw
 ae  34   0   0  10   8   1   0   0   0   0   0   0
 ah   0  43  13   0   0   0   0   0   0   0   9   0
