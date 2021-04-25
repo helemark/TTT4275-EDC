@@ -1,3 +1,9 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import csv
+import random
+import pandas as pd
+
 
 """
    1. sepal length in cm
@@ -5,9 +11,6 @@
    3. petal length in cm
    4. petal width in cm
 """
-
-
-#OBS dette er ikke helt ferdig ennå, en midlertidig versjon! ;)
 
 C = 3
 classes = ['Setosa', 'Versicolour', 'Virginica']
@@ -17,7 +20,7 @@ training_data = []
 testing_data = []
 tot_vec = []
 Tn = [[1, 0, 0]]*30 + [[0, 1, 0] ]*30 + [[0,0,1]]*30
-W = np.zeros((3,4))
+W = np.zeros((3,5))
 trenings_terskel = 0.4
 
 
@@ -47,12 +50,14 @@ def get_data():
         line_new = []
         for value in line:
             line_new.append(float(value))
+        line_new.append(1)
         training_data.append(line_new)
         
     for line in tot_vec0:
         line_new = []
         for value in line:
             line_new.append(float(value))
+        line_new.append(1)
         tot_vec.append(line_new)
         
         
@@ -60,6 +65,7 @@ def get_data():
         line_new = []
         for value in line:
             line_new.append(float(value))
+        line_new.append(1)
         testing_data.append(line_new)     
     return
 
@@ -135,8 +141,9 @@ def train(vec, alpha):
             mellomleddet = np.multiply((gk-tk),gk)
             d_mse = np.multiply(mellomleddet,(1-gk))
             n_mse += np.dot(d_mse.T, xk)
+        
         W = W_last - alpha*n_mse
-        error = np.sum(W-W_last)
+        #error = np.sum(W-W_last)
         if(np.all(abs(n_mse) <= trenings_terskel)):
             print('Antall iterasjoner:', i+1)
             print('nabla_nmse:',n_mse)
@@ -205,49 +212,40 @@ def remove_feature(vec, index):
     print
     return new_vec
     
-    
-    
 
 if __name__ == "__main__": 
     get_data()
     
     alpha = 0.001
-
-
     train(training_data, alpha)
 
+    print('\n\n', 'Testing!')
 
-    print('\n\n', 'TESTER!')
+
+    print('confusion matrix for the test data')
     test_classified = test(testing_data, len_test_class)
-    train_classified = test(training_data, len_train_class)
-
-
-    pappas = [1.8, 1.6, 1.3, 0.7]
-
-    xk = np.matrix(pappas)
-    zk = np.dot(W, xk.T).T
-    gk = sigmoid(zk[0])
-    print('pappas gk',gk)
-    classified = np.argmax(gk)+1
-    print('pappas',classified)
-
-
-    
+    plot_confusion(test_classified)
     err_t_test = error_rate(test_classified)
     print(err_t_test)
-
+    
+    print('\n')
+    print('confusion matrix for the train data')
+    train_classified = test(training_data, len_train_class)
+    plot_confusion(train_classified)
     err_t_train = error_rate(train_classified)
     print(err_t_train)
 
-    plot_confusion(test_classified)
-    plot_confusion(train_classified)
 
 
+    #Dette brukes på oppgave 2 a og b, hvor vi fjerner en etter en feature
+    #OBS, husk å endre dimensjonene på W
     '''
     training_data_1 = remove_feature(training_data, 1)
     testing_data_1 = remove_feature(testing_data, 1)
+    
     training_data_1 = remove_feature(training_data_1, 0)
     testing_data_1 = remove_feature(testing_data_1, 0)
+  
     training_data_1 = remove_feature(training_data_1, 0)
     testing_data_1 = remove_feature(testing_data_1, 0)
     
@@ -263,12 +261,19 @@ if __name__ == "__main__":
     err_t_train = error_rate(train_classified)
     print(err_t_train)
     '''
+
+
+
+    #Her plotter vi histogrammer av de ulike featurene for alle klassene.
     #tot_vec = remove_feature(tot_vec, 1)
     #plot_feature(tot_vec, 0, 50)
     #plot_feature(tot_vec, 1, 50)
     #plot_feature(tot_vec, 2, 50)
     #plot_feature(tot_vec, 3, 50)
-        
+
+    
+    '''
+    #Plotting av ulike features mot hverandre, ikke en del av oppgaen, men for vår egen del.
     f = plt.figure()
     mu_1, mu_2, mu_3 = averige(training_data)
     plot_sepal_data(training_data)
@@ -293,4 +298,4 @@ if __name__ == "__main__":
     plt.ylabel('Petal width [cm]')
     f.savefig("Petalvspetal.pdf", bbox_inches='tight')
     plt.show()
-    
+    '''
