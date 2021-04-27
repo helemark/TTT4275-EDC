@@ -4,15 +4,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-
-
 people = ['m', 'w', 'b', 'g']
 count = np.zeros((4,12))
 classes = ['ae', 'ah', 'aw', 'eh', 'ei', 'er', 'ih', 'iy','oa', 'oo', 'uh', 'uw']
 C = 12
 
 data_list = [[], [], [],  []]
-
 
 for j in range(4):
     for i in range(12):
@@ -22,23 +19,25 @@ for j in range(4):
 train_data = []
 test_data = []
 tot = []
+#To get the right dimentions
 for i in range(12):
     train_data.append([])
     test_data.append([])
     tot.append([])
 
-
+#Finds the class of one samples, and returns the index in the claases array
 def find_class_index(name):
     vowel = name[3:5]
     index = classes.index(vowel)
     return index
 
+#Finds out weather it is a man, woman boy or girl, and return the corresponding index people
 def find_person_index(name):
     person = name[0]
     index = people.index(person)
     return index
 
-
+#Gets data from the file "vowdata_nohead.dat" and sorts it into test_data and train_data
 def get_data():
     global data_list
     filnavn = "vowdata_nohead.dat"
@@ -49,7 +48,7 @@ def get_data():
                 line.remove('')
             person = find_person_index(line[0])
             index = find_class_index(line[0])
-            xk = [float(line[3]), float(line[4]), float(line[5])]
+            xk = [float(line[10]), float(line[11]), float(line[12])]
             data_list[person][index].append(xk)
 
     for i in range(4):
@@ -60,10 +59,7 @@ def get_data():
             tot[j]+=data_list[i][j]
 
 
-            
-
-
-                                 
+#plots histograms of the features in each class                                         
 def plot_hist(peaks, l = None):
     global C
     if l == None:
@@ -86,8 +82,7 @@ def plot_hist(peaks, l = None):
 
     return
 
-
-
+#Finds the means for all features for each class. Returns a 3x12 array
 def find_mean_vec(peaks):
     mean_vec = np.zeros((12, 3))
     l = len(peaks[0])
@@ -97,29 +92,7 @@ def find_mean_vec(peaks):
     mean_vec /= l
     return mean_vec
 
-
-'''        
-def find_mean_vec_set():
-    mean_vec = np.zeros((12, 4, 3))
-    #print(mean_vec)
-    for i in range(C):
-        for j in range(139):
-            if j < count[0][0]:
-                mean_vec[i][0] += peaks[i][j]
-            elif j < (count[0][0]+count[1][1]):
-                mean_vec[i][1] += peaks[i][j]
-            elif j < (count[0][0]+count[1][1]+count[2][2]):
-                mean_vec[i][2] += peaks[i][j]
-            elif j < (count[0][0]+count[1][1]+count[2][2]+count[3][3]):
-                mean_vec[i][3] += peaks[i][j]
-             
-    mean_vec[:,0] /= count[0][0]
-    mean_vec[:,1] /= count[1][1]
-    mean_vec[:,2] /= count[2][2]
-    mean_vec[:,3] /= count[3][3]
-    return mean_vec
-'''
-    
+#Finds the covariance array for each class. Returns a (3x3)x12 array 
 def covariance(peaks, mean_vec):
     sigma = []
     for i in range(C):
@@ -135,21 +108,14 @@ def covariance(peaks, mean_vec):
         sigma.append(s)
     return sigma
 
-#brukes ikke
-def gauss(x, mu, sig):
-    return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
-           
-                    
+#Classifies one sample, and returns the index of                    
 def find_class(xk, mu, sigma):
     prob = []
-
     xk = np.array(xk)    
     for i in range(C):
         mu0 = np.array(mu[i])
         sigma0 = np.array(sigma[i])
- 
         det_sigma0 = np.linalg.det(sigma0)
-        
         inv_sigma0 = np.linalg.inv(sigma0)
         #print('s',inv_sigma0)
         diff = xk - mu0
@@ -161,7 +127,7 @@ def find_class(xk, mu, sigma):
     #print(np.argmax(prob))
     return np.argmax(prob)
         
-        
+#Plots the confusion matrix      
 def plot_confusion(vec):
     global classes
     data = {}
@@ -170,6 +136,7 @@ def plot_confusion(vec):
     df = pd.DataFrame(data, index = classes)
     print(df)
 
+#Finds the error rate
 def error_rate(vec):
     sum_not_error = 0
     tot = 0
@@ -181,6 +148,7 @@ def error_rate(vec):
     err_t = (tot-sum_not_error)/tot
     return err_t
 
+#Takes in a full covariance matrix, and returns a diagonal covariance matrix
 def find_dig_cov(vec):
     ide = np.identity(3)
     mat = []
@@ -188,7 +156,7 @@ def find_dig_cov(vec):
         mat.append(np.multiply(vec[i], ide))
     return np.array(mat) 
     
-        
+#Main     
 if __name__ == "__main__": 
     get_data()
     #plot_hist(train_data, l = 6)
@@ -225,18 +193,3 @@ if __name__ == "__main__":
     err_t = error_rate(prob)
     print(err_t)
     
-
-'''
-    for line in training_data0:
-        line_new = []
-        for value in line:
-            line_new.append(float(value))
-        training_data.append(line_new)
-        
-    for line in tot_vec0:
-        line_new = []
-        for value in line:
-            line_new.append(float(value))
-        tot_vec.append(line_new)
-
-'''
